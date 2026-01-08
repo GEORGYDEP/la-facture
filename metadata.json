@@ -1,0 +1,5 @@
+{
+  "name": "FactureMaster v2 - Pédagogie Comptable",
+  "description": "Application interactive de maîtrise de la facturation (3R, Escompte, TVA multi-taux, Transport) pour élèves de 4e technique.",
+  "requestFramePermissions": []
+}
