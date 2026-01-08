@@ -1,30 +1,1720 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FactureMaster | Apprendre la Facturation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>🧾 Maître de la Facture - Apprends à facturer comme un pro !</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'Fira Code', monospace; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #f97316;
+            --accent-light: #fb923c;
+            --success: #10b981;
+            --success-light: #34d399;
+            --error: #ef4444;
+            --error-light: #f87171;
+            --warning: #eab308;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: #1e293b;
+            --input-bg: #334155;
+            --border: #475569;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            --gradient-3: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background animation */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-5%, 5%) rotate(1deg); }
+            50% { transform: translate(5%, -5%) rotate(-1deg); }
+            75% { transform: translate(-3%, -3%) rotate(0.5deg); }
+        }
+
+        /* Header */
+        header {
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--border);
+            transform: translateY(-50%);
+            border-radius: 2px;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 4px;
+            background: var(--gradient-3);
+            transform: translateY(-50%);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            border: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.completed {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .progress-step.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+        }
+
+        .progress-step.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-step:hover:not(.locked) {
+            transform: scale(1.1);
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Exercise card */
+        .exercise-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            animation: cardAppear 0.5s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .exercise-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .exercise-badge {
+            background: var(--gradient-1);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .difficulty {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .difficulty-star {
+            color: var(--warning);
+            font-size: 1.2rem;
+        }
+
+        .difficulty-star.empty {
+            opacity: 0.3;
+        }
+
+        /* Theory box */
+        .theory-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .theory-box h3 {
+            color: #a78bfa;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theory-box p {
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .formula-highlight {
+            background: rgba(249, 115, 22, 0.2);
+            border: 1px solid rgba(249, 115, 22, 0.4);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.95rem;
+        }
+
+        /* Invoice simulation */
+        .invoice-container {
+            background: #fff;
+            color: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .invoice-header-bar {
+            background: var(--gradient-2);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .company-info h4 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .company-info p {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.85rem;
+        }
+
+        .invoice-number {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .invoice-body {
+            padding: 1.5rem;
+        }
+
+        .invoice-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px dashed #e5e7eb;
+        }
+
+        .meta-item label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .meta-item span {
+            font-weight: 500;
+        }
+
+        /* Invoice table */
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-table th {
+            background: #f3f4f6;
+            padding: 0.75rem;
+            text-align: left;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .invoice-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+
+        .invoice-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-weight: 500;
+        }
+
+        .invoice-input {
+            width: 100%;
+            max-width: 120px;
+            padding: 0.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            text-align: right;
+            transition: all 0.3s ease;
+        }
+
+        .invoice-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+        }
+
+        .invoice-input.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .invoice-input.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .invoice-input:disabled {
+            background: #f9fafb;
+            color: #1a1a1a;
+        }
+
+        /* Totals section */
+        .invoice-totals {
+            margin-left: auto;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            align-items: center;
+        }
+
+        .total-row:last-child {
+            border-bottom: none;
+        }
+
+        .total-row.highlight {
+            background: linear-gradient(90deg, rgba(249, 115, 22, 0.1) 0%, transparent 100%);
+            margin: 0 -1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+        }
+
+        .total-row.final {
+            background: var(--gradient-2);
+            color: white;
+            margin: 1rem -1.5rem -1.5rem;
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .total-label {
+            font-weight: 500;
+        }
+
+        .total-label small {
+            display: block;
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 400;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-success {
+            background: var(--gradient-3);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--secondary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        /* Feedback */
+        .feedback {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            display: none;
+            animation: feedbackAppear 0.5s ease-out;
+        }
+
+        @keyframes feedbackAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .feedback.error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .feedback h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback.success h4 {
+            color: var(--success-light);
+        }
+
+        .feedback.error h4 {
+            color: var(--error-light);
+        }
+
+        /* Score display */
+        .score-display {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-icon {
+            font-size: 2rem;
+        }
+
+        .score-info {
+            text-align: left;
+        }
+
+        .score-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Welcome screen */
+        .welcome-screen {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .welcome-icon {
+            font-size: 6rem;
+            margin-bottom: 2rem;
+            animation: welcomeBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes welcomeBounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-text {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.8;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Completion screen */
+        .completion-screen {
+            text-align: center;
+            padding: 4rem 2rem;
+            display: none;
+        }
+
+        .completion-screen.show {
+            display: block;
+        }
+
+        .trophy {
+            font-size: 8rem;
+            margin-bottom: 2rem;
+            animation: trophyShine 2s ease-in-out infinite;
+        }
+
+        @keyframes trophyShine {
+            0%, 100% { filter: brightness(1); transform: scale(1); }
+            50% { filter: brightness(1.3); transform: scale(1.1); }
+        }
+
+        .completion-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .final-score {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 2rem 0;
+        }
+
+        /* Tips section */
+        .tips-box {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .tips-box h4 {
+            color: var(--warning);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tips-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tips-box li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-muted);
+        }
+
+        .tips-box li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .exercise-title {
+                font-size: 1.4rem;
+            }
+
+            .score-display {
+                top: auto;
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+            }
+
+            .progress-step {
+                width: 32px;
+                height: 32px;
+                font-size: 0.75rem;
+            }
+
+            .invoice-table {
+                font-size: 0.85rem;
+            }
+
+            .invoice-input {
+                max-width: 80px;
+                padding: 0.4rem;
+            }
+        }
+
+        /* Animations for numbers */
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-number {
+            animation: countUp 0.3s ease-out;
+        }
+
+        /* VAT selector styling */
+        .vat-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .vat-6 {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .vat-12 {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .vat-21 {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Correction display */
+        .correction-value {
+            font-family: 'Space Mono', monospace;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
-  }
-}
-</script>
 </head>
-<body class="bg-slate-50 text-slate-900">
-    <div id="root"></div>
-    <script type="module" src="index.tsx"></script>
+<body>
+    <div class="bg-animation"></div>
+
+    <header>
+        <h1 class="logo">🧾 Maître de la Facture</h1>
+        <p class="subtitle">Deviens un expert en facturation, étape par étape !</p>
+    </header>
+
+    <div class="score-display">
+        <span class="score-icon">⭐</span>
+        <div class="score-info">
+            <div class="score-label">Score total</div>
+            <div class="score-value" id="total-score">0</div>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            <div class="progress-step active" data-step="0" onclick="goToStep(0)">1</div>
+            <div class="progress-step locked" data-step="1" onclick="goToStep(1)">2</div>
+            <div class="progress-step locked" data-step="2" onclick="goToStep(2)">3</div>
+            <div class="progress-step locked" data-step="3" onclick="goToStep(3)">4</div>
+            <div class="progress-step locked" data-step="4" onclick="goToStep(4)">5</div>
+            <div class="progress-step locked" data-step="5" onclick="goToStep(5)">6</div>
+            <div class="progress-step locked" data-step="6" onclick="goToStep(6)">7</div>
+            <div class="progress-step locked" data-step="7" onclick="goToStep(7)">8</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="welcome-screen">
+            <div class="welcome-icon">🎓</div>
+            <h2 class="welcome-title">Bienvenue, futur comptable !</h2>
+            <p class="welcome-text">
+                Tu vas apprendre à maîtriser tous les aspects de la facturation : calculs de lignes, 
+                réductions, frais de port, TVA... Chaque exercice t'apportera de nouvelles compétences.
+                Prêt(e) à relever le défi ?
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">8 Niveaux progressifs</div>
+                    <div class="feature-desc">Du calcul simple à la facture complète avec plusieurs taux de TVA</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💡</div>
+                    <div class="feature-title">Théorie intégrée</div>
+                    <div class="feature-desc">Chaque exercice commence par un rappel des concepts clés</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <div class="feature-title">Correction instantanée</div>
+                    <div class="feature-desc">Vérifie tes réponses et apprends de tes erreurs</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <div class="feature-title">Score & Progression</div>
+                    <div class="feature-desc">Gagne des points et suis ta progression</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="startExercises()">
+                🚀 Commencer l'aventure
+            </button>
+        </div>
+
+        <!-- Exercise Container -->
+        <div id="exercise-container" class="hidden"></div>
+
+        <!-- Completion Screen -->
+        <div id="completion-screen" class="completion-screen">
+            <div class="trophy">🏆</div>
+            <h2 class="completion-title">Félicitations !</h2>
+            <p class="welcome-text">Tu as terminé tous les exercices et maîtrises maintenant la facturation !</p>
+            <div class="final-score" id="final-score">0 points</div>
+            <button class="btn btn-primary" onclick="restartAll()">🔄 Recommencer</button>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentExercise = 0;
+        let totalScore = 0;
+        let completedExercises = new Set();
+
+        // Exercise data
+        const exercises = [
+            // Exercise 1: Simple line calculation
+            {
+                id: 1,
+                title: "Calcul des lignes de produits",
+                badge: "Niveau 1 - Les bases",
+                difficulty: 1,
+                theory: {
+                    title: "📚 Le calcul de base",
+                    content: "La première étape d'une facture est de calculer le total de chaque ligne. C'est simple : on multiplie la quantité par le prix unitaire.",
+                    formula: "Total ligne = Quantité × Prix unitaire"
+                },
+                context: {
+                    seller: "TechnoShop SRL",
+                    sellerInfo: "BCE 0712.456.789",
+                    buyer: "Bureau Plus SA",
+                    invoiceNum: "2025-001",
+                    date: "15/01/2025"
+                },
+                items: [
+                    { name: "Clavier sans fil Logitech", qty: 5, price: 45.00 },
+                    { name: "Souris ergonomique", qty: 5, price: 32.50 },
+                    { name: "Câble HDMI 2m", qty: 10, price: 12.90 }
+                ],
+                vat: 21,
+                hasDiscount: false,
+                hasPort: false,
+                multiVat: false,
+                fieldsToFill: ['lineTotal', 'totalBrut', 'tva', 'totalTTC'],
+                tips: [
+                    "Multiplie simplement la quantité par le prix unitaire pour chaque ligne",
+                    "N'oublie pas d'additionner tous les totaux de ligne pour obtenir le total brut",
+                    "La TVA se calcule sur le total brut : Total brut × 21 ÷ 100"
+                ]
+            },
+            // Exercise 2: With discount (remise)
+            {
+                id: 2,
+                title: "Facture avec remise commerciale",
+                badge: "Niveau 2 - Remise",
+                difficulty: 2,
+                theory: {
+                    title: "📚 La remise commerciale",
+                    content: "La remise est une réduction accordée en fonction de la quantité achetée. Elle se calcule sur le total brut et se déduit AVANT le calcul de la TVA.",
+                    formula: "Montant remise = Total brut × Taux remise ÷ 100\nHTVA = Total brut − Remise"
+                },
+                context: {
+                    seller: "MobilierPro SRL",
+                    sellerInfo: "BCE 0698.123.456",
+                    buyer: "Hôtel Bellevue SA",
+                    invoiceNum: "2025-042",
+                    date: "22/01/2025"
+                },
+                items: [
+                    { name: "Chaise de conférence", qty: 20, price: 85.00 },
+                    { name: "Table pliante 180cm", qty: 5, price: 145.00 },
+                    { name: "Porte-manteau mural", qty: 4, price: 65.00 }
+                ],
+                vat: 21,
+                discount: { type: "remise", rate: 10 },
+                hasDiscount: true,
+                hasPort: false,
+                multiVat: false,
+                fieldsToFill: ['lineTotal', 'totalBrut', 'discount', 'htva', 'tva', 'totalTTC'],
+                tips: [
+                    "Calcule d'abord le total de chaque ligne",
+                    "Applique la remise de 10% sur le total brut",
+                    "La TVA se calcule sur le montant APRÈS remise"
+                ]
+            },
+            // Exercise 3: With rabais
+            {
+                id: 3,
+                title: "Facture avec rabais",
+                badge: "Niveau 3 - Rabais",
+                difficulty: 2,
+                theory: {
+                    title: "📚 Le rabais",
+                    content: "Le rabais est une réduction accordée pour un défaut de qualité ou un retard de livraison. Comme la remise, il se déduit AVANT la TVA. Un article peut avoir été livré abîmé ou en retard.",
+                    formula: "Les 4 réductions commerciales :\n• Rabais : défaut qualité / retard\n• Remise : quantité achetée\n• Ristourne : fidélité (fin de période)\n• Escompte : paiement anticipé"
+                },
+                context: {
+                    seller: "ÉlectroParts SA",
+                    sellerInfo: "BCE 0756.321.987",
+                    buyer: "Garage Dupont SRL",
+                    invoiceNum: "2025-089",
+                    date: "28/01/2025"
+                },
+                items: [
+                    { name: "Batterie auto 12V", qty: 6, price: 89.00 },
+                    { name: "Filtre à huile", qty: 12, price: 18.50 },
+                    { name: "Plaquettes de frein (jeu)", qty: 8, price: 45.00 }
+                ],
+                vat: 21,
+                discount: { type: "rabais", rate: 5, reason: "(article légèrement endommagé)" },
+                hasDiscount: true,
+                hasPort: false,
+                multiVat: false,
+                fieldsToFill: ['lineTotal', 'totalBrut', 'discount', 'htva', 'tva', 'totalTTC'],
+                tips: [
+                    "Le rabais fonctionne exactement comme la remise",
+                    "Il est accordé pour compensation d'un défaut",
+                    "Se calcule de la même manière : Total × Taux ÷ 100"
+                ]
+            },
+            // Exercise 4: With escompte
+            {
+                id: 4,
+                title: "Facture avec escompte",
+                badge: "Niveau 4 - Escompte",
+                difficulty: 3,
+                theory: {
+                    title: "📚 L'escompte",
+                    content: "L'escompte est une réduction financière accordée pour paiement anticipé (avant l'échéance). Contrairement aux autres réductions, c'est une récompense pour payer rapidement !",
+                    formula: "Escompte = réduction pour paiement comptant ou anticipé\nSe calcule aussi AVANT la TVA"
+                },
+                context: {
+                    seller: "InfoTech Solutions SA",
+                    sellerInfo: "BCE 0689.456.123",
+                    buyer: "Cabinet Comptable Martin",
+                    invoiceNum: "2025-156",
+                    date: "05/02/2025",
+                    paymentCondition: "Escompte 2% si paiement dans les 10 jours"
+                },
+                items: [
+                    { name: "Licence Microsoft 365", qty: 5, price: 125.00 },
+                    { name: "Antivirus Pro (1 an)", qty: 5, price: 65.00 },
+                    { name: "Disque SSD 500Go", qty: 3, price: 79.00 }
+                ],
+                vat: 21,
+                discount: { type: "escompte", rate: 2, reason: "(paiement comptant)" },
+                hasDiscount: true,
+                hasPort: false,
+                multiVat: false,
+                fieldsToFill: ['lineTotal', 'totalBrut', 'discount', 'htva', 'tva', 'totalTTC'],
+                tips: [
+                    "L'escompte est une réduction pour paiement rapide",
+                    "Le client paie comptant donc bénéficie de 2% de réduction",
+                    "Calcul identique : Total × 2 ÷ 100"
+                ]
+            },
+            // Exercise 5: With shipping costs
+            {
+                id: 5,
+                title: "Facture avec frais de port",
+                badge: "Niveau 5 - Transport",
+                difficulty: 3,
+                theory: {
+                    title: "📚 Les frais de port",
+                    content: "Les frais de port représentent le coût du transport des marchandises. Ils s'ajoutent AVANT le calcul de la TVA car ils font partie du prix de revient.",
+                    formula: "Montant taxable = Prix net + Frais de port\nLa TVA se calcule sur ce montant taxable"
+                },
+                context: {
+                    seller: "PapeterieMax SRL",
+                    sellerInfo: "BCE 0712.789.456",
+                    buyer: "École Saint-Joseph",
+                    invoiceNum: "2025-203",
+                    date: "12/02/2025"
+                },
+                items: [
+                    { name: "Ramette papier A4 (500f)", qty: 50, price: 5.90 },
+                    { name: "Classeur levier A4", qty: 30, price: 4.50 },
+                    { name: "Stylo bille (boîte 50)", qty: 10, price: 15.00 }
+                ],
+                vat: 21,
+                discount: { type: "remise", rate: 5 },
+                port: 35.00,
+                hasDiscount: true,
+                hasPort: true,
+                multiVat: false,
+                fieldsToFill: ['lineTotal', 'totalBrut', 'discount', 'htva', 'taxable', 'tva', 'totalTTC'],
+                tips: [
+                    "Calcule d'abord le total brut, puis la remise",
+                    "Ajoute les frais de port au montant HTVA pour obtenir le montant taxable",
+                    "La TVA se calcule sur le montant taxable (HTVA + port)"
+                ]
+            },
+            // Exercise 6: Multiple VAT rates
+            {
+                id: 6,
+                title: "Facture avec plusieurs taux de TVA",
+                badge: "Niveau 6 - Multi-TVA",
+                difficulty: 4,
+                theory: {
+                    title: "📚 Les différents taux de TVA",
+                    content: "En Belgique, il existe 3 taux de TVA : 6% (produits de base), 12% (intermédiaire), et 21% (taux normal). Quand une facture contient plusieurs taux, il faut calculer la TVA séparément pour chaque catégorie.",
+                    formula: "Taux 6% : alimentation, livres, médicaments\nTaux 12% : restaurants, logement social\nTaux 21% : électronique, vêtements, meubles"
+                },
+                context: {
+                    seller: "SuperMarché Delhaize",
+                    sellerInfo: "BCE 0400.000.001",
+                    buyer: "Restaurant Le Gourmet SRL",
+                    invoiceNum: "2025-4521",
+                    date: "18/02/2025"
+                },
+                items: [
+                    { name: "Farine pâtissière (25kg)", qty: 4, price: 18.50, vat: 6 },
+                    { name: "Beurre de cuisine (5kg)", qty: 3, price: 42.00, vat: 6 },
+                    { name: "Produit vaisselle pro (5L)", qty: 6, price: 15.00, vat: 21 },
+                    { name: "Serviettes papier (lot 1000)", qty: 2, price: 28.00, vat: 21 }
+                ],
+                hasDiscount: false,
+                hasPort: false,
+                multiVat: true,
+                fieldsToFill: ['lineTotal', 'base6', 'tva6', 'base21', 'tva21', 'totalTTC'],
+                tips: [
+                    "Regroupe les articles par taux de TVA",
+                    "Calcule séparément : base 6% et base 21%",
+                    "Additionne ensuite toutes les TVA pour le total"
+                ]
+            },
+            // Exercise 7: Complete invoice
+            {
+                id: 7,
+                title: "Facture complète",
+                badge: "Niveau 7 - Expert",
+                difficulty: 5,
+                theory: {
+                    title: "📚 Facture complète",
+                    content: "Cette facture combine tous les éléments : plusieurs taux de TVA, une remise et des frais de port. Attention : les frais de port sont toujours soumis au taux de TVA le plus bas !",
+                    formula: "Ordre de calcul :\n1. Total brut par article\n2. Remise globale\n3. + Frais de port\n4. TVA par taux (port au taux le + bas)\n5. Total TTC"
+                },
+                context: {
+                    seller: "Grossiste Alimentaire SA",
+                    sellerInfo: "BCE 0789.456.123",
+                    buyer: "Brasserie du Centre SRL",
+                    invoiceNum: "2025-789",
+                    date: "25/02/2025"
+                },
+                items: [
+                    { name: "Eau minérale (pack 24)", qty: 10, price: 8.50, vat: 6 },
+                    { name: "Café moulu premium (1kg)", qty: 8, price: 22.00, vat: 6 },
+                    { name: "Détergent sol (5L)", qty: 4, price: 18.50, vat: 21 },
+                    { name: "Sachets congélation (100)", qty: 5, price: 6.90, vat: 21 }
+                ],
+                discount: { type: "remise", rate: 8 },
+                port: 25.00,
+                hasDiscount: true,
+                hasPort: true,
+                multiVat: true,
+                portVatNote: "(port soumis au taux de 6%)",
+                fieldsToFill: ['lineTotal', 'totalBrut', 'discount', 'htva', 'base6', 'tva6', 'base21', 'tva21', 'totalTTC'],
+                tips: [
+                    "Les frais de port sont soumis au taux le plus BAS (6%)",
+                    "Calcule la remise sur le total brut global",
+                    "Répartis le montant net entre les deux bases de TVA proportionnellement"
+                ]
+            },
+            // Exercise 8: Credit note
+            {
+                id: 8,
+                title: "Note de crédit",
+                badge: "Niveau 8 - Maîtrise",
+                difficulty: 5,
+                theory: {
+                    title: "📚 La note de crédit",
+                    content: "La note de crédit diminue le montant d'une facture. Elle est utilisée pour : retour de marchandises, erreur en faveur du client, réduction accordée après coup. Les calculs sont identiques à une facture normale.",
+                    formula: "Note de crédit = diminue la facture\nFacture complémentaire = augmente la facture"
+                },
+                context: {
+                    seller: "TechnoShop SRL",
+                    sellerInfo: "BCE 0712.456.789",
+                    buyer: "Bureau Plus SA",
+                    docType: "NOTE DE CRÉDIT",
+                    invoiceNum: "NC-2025-015",
+                    date: "20/02/2025",
+                    reference: "Ref. facture 2025-001 - Retour marchandise défectueuse"
+                },
+                items: [
+                    { name: "Clavier sans fil Logitech (retour)", qty: 2, price: 45.00 },
+                    { name: "Souris ergonomique (retour)", qty: 1, price: 32.50 }
+                ],
+                vat: 21,
+                discount: { type: "remise", rate: 5, reason: "(remise initiale)" },
+                hasDiscount: true,
+                hasPort: false,
+                multiVat: false,
+                isCreditNote: true,
+                fieldsToFill: ['lineTotal', 'totalBrut', 'discount', 'htva', 'tva', 'totalTTC'],
+                tips: [
+                    "Une note de crédit se calcule comme une facture normale",
+                    "N'oublie pas d'appliquer la même remise que sur la facture d'origine",
+                    "Le montant final sera déduit de ce que le client doit"
+                ]
+            }
+        ];
+
+        // Helper functions
+        function formatMoney(amount) {
+            return amount.toFixed(2).replace('.', ',') + ' €';
+        }
+
+        function parseMoney(value) {
+            if (!value) return NaN;
+            // Handle both comma and dot as decimal separator
+            const cleaned = value.toString().replace(/\s/g, '').replace(',', '.').replace('€', '');
+            return parseFloat(cleaned);
+        }
+
+        function roundMoney(amount) {
+            return Math.round(amount * 100) / 100;
+        }
+
+        function updateProgressBar() {
+            const steps = document.querySelectorAll('.progress-step');
+            const fill = document.getElementById('progress-fill');
+            
+            steps.forEach((step, index) => {
+                step.classList.remove('active', 'completed', 'locked');
+                if (completedExercises.has(index)) {
+                    step.classList.add('completed');
+                } else if (index === currentExercise) {
+                    step.classList.add('active');
+                } else if (index > Math.max(...completedExercises, -1) + 1 && !completedExercises.has(index - 1)) {
+                    step.classList.add('locked');
+                }
+            });
+
+            const progress = (completedExercises.size / exercises.length) * 100;
+            fill.style.width = `${progress}%`;
+        }
+
+        function updateScore(points) {
+            totalScore += points;
+            const scoreElement = document.getElementById('total-score');
+            scoreElement.textContent = totalScore;
+            scoreElement.classList.add('animate-number');
+            setTimeout(() => scoreElement.classList.remove('animate-number'), 300);
+        }
+
+        function goToStep(step) {
+            const stepElement = document.querySelector(`[data-step="${step}"]`);
+            if (stepElement.classList.contains('locked')) return;
+            
+            currentExercise = step;
+            renderExercise(exercises[step]);
+            updateProgressBar();
+        }
+
+        function startExercises() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('exercise-container').classList.remove('hidden');
+            renderExercise(exercises[0]);
+        }
+
+        function getDifficultyStars(level) {
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                stars += `<span class="difficulty-star ${i < level ? '' : 'empty'}">★</span>`;
+            }
+            return stars;
+        }
+
+        function renderExercise(ex) {
+            const container = document.getElementById('exercise-container');
+            
+            // Calculate expected values
+            const expectedValues = calculateExpectedValues(ex);
+
+            let html = `
+                <div class="exercise-card">
+                    <div class="exercise-header">
+                        <div>
+                            <h2 class="exercise-title">${ex.title}</h2>
+                            <span class="exercise-badge">${ex.badge}</span>
+                        </div>
+                        <div class="difficulty">
+                            ${getDifficultyStars(ex.difficulty)}
+                        </div>
+                    </div>
+
+                    <div class="theory-box">
+                        <h3>${ex.theory.title}</h3>
+                        <p>${ex.theory.content}</p>
+                        <div class="formula-highlight">
+                            ${ex.theory.formula.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+
+                    <div class="invoice-container">
+                        <div class="invoice-header-bar">
+                            <div class="company-info">
+                                <h4>${ex.context.seller}</h4>
+                                <p>${ex.context.sellerInfo}</p>
+                            </div>
+                            <div class="invoice-number">
+                                ${ex.isCreditNote ? '📋 ' + ex.context.docType : '📋 FACTURE'}<br>
+                                ${ex.context.invoiceNum}
+                            </div>
+                        </div>
+
+                        <div class="invoice-body">
+                            <div class="invoice-meta">
+                                <div class="meta-item">
+                                    <label>Client</label>
+                                    <span>${ex.context.buyer}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <label>Date</label>
+                                    <span>${ex.context.date}</span>
+                                </div>
+                                ${ex.context.paymentCondition ? `
+                                <div class="meta-item">
+                                    <label>Conditions</label>
+                                    <span>${ex.context.paymentCondition}</span>
+                                </div>` : ''}
+                                ${ex.context.reference ? `
+                                <div class="meta-item" style="grid-column: span 2;">
+                                    <label>Référence</label>
+                                    <span>${ex.context.reference}</span>
+                                </div>` : ''}
+                            </div>
+
+                            <table class="invoice-table">
+                                <thead>
+                                    <tr>
+                                        <th>Désignation</th>
+                                        <th style="text-align: center;">Qté</th>
+                                        <th style="text-align: right;">P.U. HTVA</th>
+                                        ${ex.multiVat ? '<th style="text-align: center;">TVA</th>' : ''}
+                                        <th style="text-align: right;">Total HTVA</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${ex.items.map((item, idx) => `
+                                    <tr>
+                                        <td class="product-name">${item.name}</td>
+                                        <td style="text-align: center;">${item.qty}</td>
+                                        <td style="text-align: right;">${formatMoney(item.price)}</td>
+                                        ${ex.multiVat ? `<td style="text-align: center;"><span class="vat-badge vat-${item.vat}">${item.vat}%</span></td>` : ''}
+                                        <td style="text-align: right;">
+                                            <input type="text" class="invoice-input" id="line-${idx}" 
+                                                   data-expected="${expectedValues.lineTotals[idx]}" 
+                                                   placeholder="?" onkeyup="checkInput(this)">
+                                        </td>
+                                    </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+
+                            <div class="invoice-totals">
+                                <div class="total-row">
+                                    <span class="total-label">Total brut</span>
+                                    <input type="text" class="invoice-input" id="total-brut" 
+                                           data-expected="${expectedValues.totalBrut}" 
+                                           placeholder="?" onkeyup="checkInput(this)">
+                                </div>
+
+                                ${ex.hasDiscount ? `
+                                <div class="total-row">
+                                    <span class="total-label">
+                                        ${ex.discount.type.charAt(0).toUpperCase() + ex.discount.type.slice(1)} ${ex.discount.rate}%
+                                        ${ex.discount.reason ? `<small>${ex.discount.reason}</small>` : ''}
+                                    </span>
+                                    <input type="text" class="invoice-input" id="discount" 
+                                           data-expected="${expectedValues.discountAmount}" 
+                                           placeholder="?" onkeyup="checkInput(this)" style="color: #dc2626;">
+                                </div>
+                                <div class="total-row highlight">
+                                    <span class="total-label">Montant HTVA</span>
+                                    <input type="text" class="invoice-input" id="htva" 
+                                           data-expected="${expectedValues.htva}" 
+                                           placeholder="?" onkeyup="checkInput(this)">
+                                </div>
+                                ` : ''}
+
+                                ${ex.hasPort ? `
+                                <div class="total-row">
+                                    <span class="total-label">
+                                        Frais de port
+                                        ${ex.portVatNote ? `<small>${ex.portVatNote}</small>` : ''}
+                                    </span>
+                                    <span>${formatMoney(ex.port)}</span>
+                                </div>
+                                ${!ex.multiVat ? `
+                                <div class="total-row highlight">
+                                    <span class="total-label">Montant taxable</span>
+                                    <input type="text" class="invoice-input" id="taxable" 
+                                           data-expected="${expectedValues.taxable}" 
+                                           placeholder="?" onkeyup="checkInput(this)">
+                                </div>
+                                ` : ''}
+                                ` : ''}
+
+                                ${ex.multiVat ? `
+                                <div class="total-row">
+                                    <span class="total-label">
+                                        Base TVA 6%
+                                        ${ex.hasPort ? '<small>(+ port)</small>' : ''}
+                                    </span>
+                                    <input type="text" class="invoice-input" id="base6" 
+                                           data-expected="${expectedValues.base6}" 
+                                           placeholder="?" onkeyup="checkInput(this)">
+                                </div>
+                                <div class="total-row">
+                                    <span class="total-label">TVA 6%</span>
+                                    <input type="text" class="invoice-input" id="tva6" 
+                                           data-expected="${expectedValues.tva6}" 
+                                           placeholder="?" onkeyup="checkInput(this)">
+                                </div>
+                                <div class="total-row">
+                                    <span class="total-label">Base TVA 21%</span>
+                                    <input type="text" class="invoice-input" id="base21" 
+                                           data-expected="${expectedValues.base21}" 
+                                           placeholder="?" onkeyup="checkInput(this)">
+                                </div>
+                                <div class="total-row">
+                                    <span class="total-label">TVA 21%</span>
+                                    <input type="text" class="invoice-input" id="tva21" 
+                                           data-expected="${expectedValues.tva21}" 
+                                           placeholder="?" onkeyup="checkInput(this)">
+                                </div>
+                                ` : `
+                                <div class="total-row">
+                                    <span class="total-label">TVA ${ex.vat}%</span>
+                                    <input type="text" class="invoice-input" id="tva" 
+                                           data-expected="${expectedValues.tva}" 
+                                           placeholder="?" onkeyup="checkInput(this)">
+                                </div>
+                                `}
+
+                                <div class="total-row final">
+                                    <span class="total-label">${ex.isCreditNote ? 'TOTAL À DÉDUIRE' : 'TOTAL À PAYER'}</span>
+                                    <input type="text" class="invoice-input" id="total-ttc" 
+                                           data-expected="${expectedValues.totalTTC}" 
+                                           placeholder="?" onkeyup="checkInput(this)" 
+                                           style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: white;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tips-box">
+                        <h4>💡 Conseils pour cet exercice</h4>
+                        <ul>
+                            ${ex.tips.map(tip => `<li>${tip}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="verifyExercise(${ex.id})">
+                            ✓ Vérifier mes réponses
+                        </button>
+                        <button class="btn btn-outline" onclick="showSolution(${ex.id})">
+                            👁 Voir la solution
+                        </button>
+                    </div>
+
+                    <div class="feedback" id="feedback-${ex.id}"></div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            updateProgressBar();
+        }
+
+        function calculateExpectedValues(ex) {
+            const values = {
+                lineTotals: [],
+                totalBrut: 0,
+                discountAmount: 0,
+                htva: 0,
+                taxable: 0,
+                tva: 0,
+                tva6: 0,
+                tva21: 0,
+                base6: 0,
+                base21: 0,
+                totalTTC: 0
+            };
+
+            // Calculate line totals and total brut
+            ex.items.forEach(item => {
+                const lineTotal = roundMoney(item.qty * item.price);
+                values.lineTotals.push(lineTotal);
+                values.totalBrut += lineTotal;
+            });
+            values.totalBrut = roundMoney(values.totalBrut);
+
+            if (ex.multiVat) {
+                // Multi-VAT calculation
+                let brut6 = 0, brut21 = 0;
+                ex.items.forEach((item, idx) => {
+                    if (item.vat === 6) {
+                        brut6 += values.lineTotals[idx];
+                    } else {
+                        brut21 += values.lineTotals[idx];
+                    }
+                });
+
+                if (ex.hasDiscount) {
+                    // Apply discount proportionally
+                    const discountRate = ex.discount.rate / 100;
+                    values.discountAmount = roundMoney(values.totalBrut * discountRate);
+                    values.htva = roundMoney(values.totalBrut - values.discountAmount);
+                    
+                    // Proportional reduction
+                    const ratio = values.htva / values.totalBrut;
+                    brut6 = roundMoney(brut6 * ratio);
+                    brut21 = roundMoney(brut21 * ratio);
+                }
+
+                // Add port to lowest VAT rate
+                if (ex.hasPort) {
+                    brut6 += ex.port;
+                }
+
+                values.base6 = roundMoney(brut6);
+                values.base21 = roundMoney(brut21);
+                values.tva6 = roundMoney(brut6 * 0.06);
+                values.tva21 = roundMoney(brut21 * 0.21);
+                values.totalTTC = roundMoney(values.base6 + values.tva6 + values.base21 + values.tva21);
+            } else {
+                // Single VAT calculation
+                values.htva = values.totalBrut;
+
+                if (ex.hasDiscount) {
+                    const discountRate = ex.discount.rate / 100;
+                    values.discountAmount = roundMoney(values.totalBrut * discountRate);
+                    values.htva = roundMoney(values.totalBrut - values.discountAmount);
+                }
+
+                values.taxable = values.htva;
+                if (ex.hasPort) {
+                    values.taxable = roundMoney(values.htva + ex.port);
+                }
+
+                const baseForVat = ex.hasPort ? values.taxable : values.htva;
+                values.tva = roundMoney(baseForVat * (ex.vat / 100));
+                values.totalTTC = roundMoney(baseForVat + values.tva);
+            }
+
+            return values;
+        }
+
+        function checkInput(input) {
+            const expected = parseFloat(input.dataset.expected);
+            const value = parseMoney(input.value);
+            
+            input.classList.remove('correct', 'incorrect');
+            
+            if (!isNaN(value)) {
+                if (Math.abs(value - expected) < 0.02) {
+                    input.classList.add('correct');
+                }
+            }
+        }
+
+        function verifyExercise(exerciseId) {
+            const ex = exercises.find(e => e.id === exerciseId);
+            const expectedValues = calculateExpectedValues(ex);
+            const feedback = document.getElementById(`feedback-${exerciseId}`);
+            
+            let allCorrect = true;
+            let errors = [];
+            let correctCount = 0;
+            let totalFields = 0;
+
+            // Check line totals
+            ex.items.forEach((item, idx) => {
+                const input = document.getElementById(`line-${idx}`);
+                const value = parseMoney(input.value);
+                const expected = expectedValues.lineTotals[idx];
+                totalFields++;
+                
+                if (Math.abs(value - expected) < 0.02) {
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                    correctCount++;
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                    allCorrect = false;
+                    errors.push(`Ligne ${idx + 1}: ${formatMoney(expected)}`);
+                }
+            });
+
+            // Check other fields
+            const fieldsToCheck = [
+                { id: 'total-brut', expected: expectedValues.totalBrut, name: 'Total brut' },
+                { id: 'discount', expected: expectedValues.discountAmount, name: 'Réduction' },
+                { id: 'htva', expected: expectedValues.htva, name: 'Montant HTVA' },
+                { id: 'taxable', expected: expectedValues.taxable, name: 'Montant taxable' },
+                { id: 'tva', expected: expectedValues.tva, name: 'TVA' },
+                { id: 'base6', expected: expectedValues.base6, name: 'Base 6%' },
+                { id: 'tva6', expected: expectedValues.tva6, name: 'TVA 6%' },
+                { id: 'base21', expected: expectedValues.base21, name: 'Base 21%' },
+                { id: 'tva21', expected: expectedValues.tva21, name: 'TVA 21%' },
+                { id: 'total-ttc', expected: expectedValues.totalTTC, name: 'Total TTC' }
+            ];
+
+            fieldsToCheck.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input) {
+                    totalFields++;
+                    const value = parseMoney(input.value);
+                    
+                    if (Math.abs(value - field.expected) < 0.02) {
+                        input.classList.add('correct');
+                        input.classList.remove('incorrect');
+                        correctCount++;
+                    } else {
+                        input.classList.add('incorrect');
+                        input.classList.remove('correct');
+                        allCorrect = false;
+                        errors.push(`${field.name}: ${formatMoney(field.expected)}`);
+                    }
+                }
+            });
+
+            if (allCorrect) {
+                feedback.className = 'feedback success show';
+                feedback.innerHTML = `
+                    <h4>🎉 Excellent travail !</h4>
+                    <p>Toutes tes réponses sont correctes ! Tu as gagné <strong>+${totalFields * 10} points</strong>.</p>
+                `;
+                
+                if (!completedExercises.has(currentExercise)) {
+                    updateScore(totalFields * 10);
+                    completedExercises.add(currentExercise);
+                    
+                    // Unlock next exercise
+                    if (currentExercise < exercises.length - 1) {
+                        setTimeout(() => {
+                            if (confirm('🎊 Bravo ! Veux-tu passer à l\'exercice suivant ?')) {
+                                currentExercise++;
+                                renderExercise(exercises[currentExercise]);
+                            }
+                        }, 500);
+                    } else {
+                        // All completed
+                        setTimeout(() => {
+                            document.getElementById('exercise-container').classList.add('hidden');
+                            document.getElementById('completion-screen').classList.add('show');
+                            document.getElementById('final-score').textContent = totalScore + ' points';
+                        }, 1000);
+                    }
+                }
+            } else {
+                feedback.className = 'feedback error show';
+                feedback.innerHTML = `
+                    <h4>❌ Pas tout à fait...</h4>
+                    <p>Tu as ${correctCount} réponse(s) correcte(s) sur ${totalFields}. Vérifie les champs en rouge et réessaie !</p>
+                `;
+            }
+
+            updateProgressBar();
+        }
+
+        function showSolution(exerciseId) {
+            const ex = exercises.find(e => e.id === exerciseId);
+            const expectedValues = calculateExpectedValues(ex);
+            
+            // Fill all inputs with correct values
+            ex.items.forEach((item, idx) => {
+                const input = document.getElementById(`line-${idx}`);
+                input.value = formatMoney(expectedValues.lineTotals[idx]).replace(' €', '');
+                input.classList.add('correct');
+                input.disabled = true;
+            });
+
+            const fieldsToFill = [
+                { id: 'total-brut', value: expectedValues.totalBrut },
+                { id: 'discount', value: expectedValues.discountAmount },
+                { id: 'htva', value: expectedValues.htva },
+                { id: 'taxable', value: expectedValues.taxable },
+                { id: 'tva', value: expectedValues.tva },
+                { id: 'base6', value: expectedValues.base6 },
+                { id: 'tva6', value: expectedValues.tva6 },
+                { id: 'base21', value: expectedValues.base21 },
+                { id: 'tva21', value: expectedValues.tva21 },
+                { id: 'total-ttc', value: expectedValues.totalTTC }
+            ];
+
+            fieldsToFill.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input) {
+                    input.value = formatMoney(field.value).replace(' €', '');
+                    input.classList.add('correct');
+                    input.disabled = true;
+                }
+            });
+
+            const feedback = document.getElementById(`feedback-${exerciseId}`);
+            feedback.className = 'feedback show';
+            feedback.style.background = 'linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)';
+            feedback.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+            feedback.innerHTML = `
+                <h4 style="color: #fbbf24;">👁 Solution affichée</h4>
+                <p>Voici les réponses correctes. Étudie-les bien et réessaie un nouvel exercice !</p>
+            `;
+        }
+
+        function restartAll() {
+            currentExercise = 0;
+            totalScore = 0;
+            completedExercises.clear();
+            
+            document.getElementById('total-score').textContent = '0';
+            document.getElementById('completion-screen').classList.remove('show');
+            document.getElementById('welcome-screen').classList.remove('hidden');
+            document.getElementById('exercise-container').classList.add('hidden');
+            
+            updateProgressBar();
+        }
+
+        // Initialize
+        updateProgressBar();
+    </script>
 </body>
 </html>
