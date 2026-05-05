@@ -821,9 +821,42 @@
 <body>
     <div class="bg-animation"></div>
 
+    <!-- ===== MODAL EMAIL (Tracking SPEC v5) ===== -->
+    <div id="emailOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+      <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center;box-shadow:0 0 40px rgba(0,0,0,0.5);">
+        <div style="font-size:2rem;margin-bottom:12px;">🎓</div>
+        <h2 style="font-size:1.3rem;margin-bottom:4px;color:var(--text);">Identification</h2>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;">Entre ton adresse email scolaire pour commencer.</p>
+        <input type="email" id="emailInput" placeholder="prenom.nom@eleve.istlm.be"
+          style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:1rem;outline:none;margin-bottom:12px;font-family:inherit;box-sizing:border-box;"
+          onkeydown="if(event.key==='Enter')validateEmail()">
+        <div id="emailError" style="color:var(--error);font-size:0.82rem;margin-bottom:12px;min-height:1.2em;"></div>
+        <button id="emailBtn" onclick="validateEmail()"
+          style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#0f1117;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.2s;">
+          ✅ Vérifier et commencer
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== MODAL CLASSEMENT (Tracking SPEC v5) ===== -->
+    <div id="lbOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);" onclick="if(event.target===this)closeLB()">
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:28px;width:95%;max-width:600px;max-height:85vh;overflow-y:auto;box-shadow:0 0 40px rgba(0,0,0,0.5);color:var(--text);">
+        <button onclick="closeLB()" style="position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;">✕</button>
+        <div style="display:flex;gap:8px;margin-bottom:20px;">
+          <button id="lbTabApp" onclick="switchLBTab('app')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--success);background:var(--success);color:#0f1117;font-weight:700;cursor:pointer;font-family:inherit;font-size:0.85rem;">🏆 Cette application</button>
+          <button id="lbTabGlobal" onclick="switchLBTab('global')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.85rem;">🌍 Classement général</button>
+        </div>
+        <div id="lbContent"><div style="text-align:center;padding:40px;color:var(--text-muted);">Chargement…</div></div>
+      </div>
+    </div>
+
     <header>
         <h1 class="logo">🧾 Maître de la Facture</h1>
         <p class="subtitle">Deviens un expert en facturation, étape par étape !</p>
+        <div id="trackingHeader" style="display:none;margin-top:1rem;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <span id="studentInfo" style="font-size:0.85rem;color:var(--text-muted);"></span>
+            <span id="globalTimer" style="font-family:'Space Mono',monospace;font-size:0.95rem;color:var(--text);background:rgba(255,255,255,0.08);padding:6px 14px;border-radius:8px;">⏱️ 00:00</span>
+        </div>
     </header>
 
     <div class="score-display">
@@ -885,6 +918,11 @@
             <button class="btn btn-primary" onclick="startExercises()">
                 🚀 Commencer l'aventure
             </button>
+
+            <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+                <button onclick="openLB('app')" style="padding:12px 24px;border-radius:12px;border:2px solid var(--success);background:transparent;color:var(--success);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.9rem;">🏆 Classement</button>
+                <button onclick="openLB('global')" style="padding:12px 24px;border-radius:12px;border:2px solid var(--accent);background:transparent;color:var(--accent);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.9rem;">🌍 Général</button>
+            </div>
         </div>
 
         <!-- Exercise Container -->
@@ -897,6 +935,11 @@
             <p class="welcome-text">Tu as terminé tous les exercices et maîtrises maintenant la facturation !</p>
             <div class="final-score" id="final-score">0 points</div>
             <button class="btn btn-primary" onclick="restartAll()">🔄 Recommencer</button>
+
+            <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+                <button onclick="openLB('app')" style="padding:12px 24px;border-radius:12px;border:2px solid var(--success);background:transparent;color:var(--success);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.9rem;">🏆 Classement</button>
+                <button onclick="openLB('global')" style="padding:12px 24px;border-radius:12px;border:2px solid var(--accent);background:transparent;color:var(--accent);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.9rem;">🌍 Général</button>
+            </div>
         </div>
     </div>
 
@@ -905,6 +948,13 @@
         let currentExercise = 0;
         let totalScore = 0;
         let completedExercises = new Set();
+
+        // === TRACKING : état par exercice ===
+        // Suivi des envois (anti-doublon par session) et des chronos par exercice
+        let exerciseSentSet = new Set();   // set d'IDs d'exercice déjà envoyés au Sheet
+        let exerciseStartTime = {};        // timestamp de début par exercice (id)
+        let exerciseBestPoints = {};       // meilleur score atteint par exercice (id) avant envoi
+        let exerciseFieldsCount = {};      // nombre total de champs par exercice (id)
 
         // Exercise data
         const exercises = [
@@ -1240,13 +1290,24 @@
         function goToStep(step) {
             const stepElement = document.querySelector(`[data-step="${step}"]`);
             if (stepElement.classList.contains('locked')) return;
-            
+
+            // === TRACKING : si on quitte un exercice non complété, envoyer le meilleur score partiel ===
+            if (currentExercise !== step) {
+                const previousEx = exercises[currentExercise];
+                if (previousEx) sendPartialResultIfPending(previousEx.id);
+            }
+
             currentExercise = step;
             renderExercise(exercises[step]);
             updateProgressBar();
         }
 
         function startExercises() {
+            // Si l'élève n'est pas encore identifié, on ouvre d'abord le modal email
+            if (!APP.email) {
+                showEmailModal();
+                return;
+            }
             document.getElementById('welcome-screen').classList.add('hidden');
             document.getElementById('exercise-container').classList.remove('hidden');
             renderExercise(exercises[0]);
@@ -1262,7 +1323,12 @@
 
         function renderExercise(ex) {
             const container = document.getElementById('exercise-container');
-            
+
+            // === TRACKING : démarrer le chrono si pas déjà démarré pour cet exercice ===
+            if (!exerciseStartTime[ex.id]) {
+                exerciseStartTime[ex.id] = Date.now();
+            }
+
             // Calculate expected values
             const expectedValues = calculateExpectedValues(ex);
 
@@ -1617,6 +1683,15 @@
                 }
             });
 
+            // === TRACKING : mémoriser le meilleur score atteint et le nombre de champs ===
+            const exId = exerciseId;
+            exerciseFieldsCount[exId] = totalFields;
+            const previousBest = exerciseBestPoints[exId] || 0;
+            const currentPoints = correctCount * 10;
+            if (currentPoints > previousBest) {
+                exerciseBestPoints[exId] = currentPoints;
+            }
+
             if (allCorrect) {
                 feedback.className = 'feedback success show';
                 feedback.innerHTML = `
@@ -1627,6 +1702,16 @@
                 if (!completedExercises.has(currentExercise)) {
                     updateScore(totalFields * 10);
                     completedExercises.add(currentExercise);
+
+                    // === TRACKING : envoi au Sheet à la 1re réussite totale (anti-doublon par session) ===
+                    if (!exerciseSentSet.has(exId)) {
+                        const start = exerciseStartTime[exId] || Date.now();
+                        const temps = Math.round((Date.now() - start) / 1000);
+                        if (typeof sendResult === 'function') {
+                            sendResult(ex.title, totalFields * 10, totalFields * 10, temps);
+                        }
+                        exerciseSentSet.add(exId);
+                    }
                     
                     // Unlock next exercise
                     if (currentExercise < exercises.length - 1) {
@@ -1654,6 +1739,23 @@
             }
 
             updateProgressBar();
+        }
+
+        // === TRACKING : envoi du meilleur score partiel quand on quitte un exercice non complété ===
+        // Appelé quand l'élève change d'exercice ou termine la session sans avoir tout validé
+        function sendPartialResultIfPending(exId) {
+            if (exerciseSentSet.has(exId)) return; // déjà envoyé
+            const ex = exercises.find(e => e.id === exId);
+            if (!ex) return;
+            const totalFields = exerciseFieldsCount[exId];
+            if (!totalFields) return; // l'élève n'a jamais cliqué sur "Vérifier" → rien à envoyer
+            const points = exerciseBestPoints[exId] || 0;
+            const start = exerciseStartTime[exId] || Date.now();
+            const temps = Math.round((Date.now() - start) / 1000);
+            if (typeof sendResult === 'function') {
+                sendResult(ex.title, points, totalFields * 10, temps);
+            }
+            exerciseSentSet.add(exId);
         }
 
         function showSolution(exerciseId) {
@@ -1701,6 +1803,19 @@
         }
 
         function restartAll() {
+            // === TRACKING : envoyer le meilleur partiel de l'exo en cours s'il y a lieu ===
+            const currentEx = exercises[currentExercise];
+            if (currentEx) sendPartialResultIfPending(currentEx.id);
+
+            // === TRACKING : nouvelle session ===
+            if (typeof TRACKING !== 'undefined') {
+                TRACKING.sessionId = new Date().toISOString();
+            }
+            exerciseSentSet = new Set();
+            exerciseStartTime = {};
+            exerciseBestPoints = {};
+            exerciseFieldsCount = {};
+
             currentExercise = 0;
             totalScore = 0;
             completedExercises.clear();
@@ -1715,6 +1830,292 @@
 
         // Initialize
         updateProgressBar();
+
+        // ============================================================
+        // TRACKING SPEC v5 — Configuration & fonctions
+        // ============================================================
+        const TRACKING = {
+          appName: "Maître de la Facture",
+          totalNiveaux: 8,
+          sessionId: null,
+          scriptUrl: "https://script.google.com/macros/s/AKfycbx9bRMVuHU2mgFLii1KcQXD3LdZahnDH1rf1cWv9RuDvQAt0l3VtLtxzmbH7MtpJWRjfA/exec"
+        };
+
+        const APP = {
+          email: localStorage.getItem('student_email') || '',
+          classe: localStorage.getItem('student_classe') || '',
+          globalTimerStart: null,
+          globalTimerInterval: null
+        };
+
+        // ============================================================
+        // TRACKING — Modal Email
+        // ============================================================
+        function showEmailModal() {
+          const overlay = document.getElementById('emailOverlay');
+          if (!overlay) return;
+          overlay.style.display = 'flex';
+          const input = document.getElementById('emailInput');
+          const saved = localStorage.getItem('student_email');
+          if (saved) input.value = saved;
+          input.focus();
+          document.getElementById('emailError').textContent = '';
+        }
+
+        function validateEmail() {
+          const input = document.getElementById('emailInput');
+          const btn = document.getElementById('emailBtn');
+          const errDiv = document.getElementById('emailError');
+          const email = input.value.trim().toLowerCase();
+
+          if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            errDiv.textContent = '⚠️ Entre une adresse email valide.';
+            input.style.borderColor = 'var(--error)';
+            return;
+          }
+
+          btn.textContent = '⏳ Vérification…';
+          btn.disabled = true;
+          errDiv.textContent = '';
+          input.style.borderColor = '';
+
+          const cbName = '_emailCb_' + Date.now();
+          const timeout = setTimeout(() => {
+            delete window[cbName];
+            const s = document.getElementById(cbName);
+            if (s) s.remove();
+            errDiv.textContent = '⚠️ Connexion impossible. Vérifie ta connexion internet.';
+            btn.textContent = '✅ Vérifier et commencer';
+            btn.disabled = false;
+          }, 10000);
+
+          window[cbName] = function(resp) {
+            clearTimeout(timeout);
+            delete window[cbName];
+            const s = document.getElementById(cbName);
+            if (s) s.remove();
+            btn.textContent = '✅ Vérifier et commencer';
+            btn.disabled = false;
+
+            if (resp && resp.found) {
+              localStorage.setItem('student_email', email);
+              localStorage.setItem('student_classe', resp.classe || '');
+              APP.email = email;
+              APP.classe = resp.classe || '';
+
+              TRACKING.sessionId = new Date().toISOString();
+              document.getElementById('emailOverlay').style.display = 'none';
+
+              // Affichage info élève + timer dans le header
+              const header = document.getElementById('trackingHeader');
+              if (header) header.style.display = 'flex';
+              const infoEl = document.getElementById('studentInfo');
+              if (infoEl) {
+                infoEl.textContent = '👤 ' + email + (resp.classe ? ' • ' + resp.classe : '');
+              }
+
+              startGlobalTimer();
+            } else {
+              errDiv.textContent = "⚠️ Cette adresse email n'est pas enregistrée. Vérifie l'orthographe ou demande à ton professeur de t'ajouter à la liste.";
+              input.style.borderColor = 'var(--error)';
+            }
+          };
+
+          const sc = document.createElement('script');
+          sc.id = cbName;
+          sc.src = TRACKING.scriptUrl + '?action=check_email&email=' + encodeURIComponent(email) + '&callback=' + cbName;
+          sc.onerror = function() {
+            clearTimeout(timeout);
+            delete window[cbName];
+            sc.remove();
+            errDiv.textContent = '⚠️ Erreur de connexion au serveur.';
+            btn.textContent = '✅ Vérifier et commencer';
+            btn.disabled = false;
+          };
+          document.body.appendChild(sc);
+        }
+
+        // ============================================================
+        // TRACKING — Chronomètre global visible
+        // ============================================================
+        function startGlobalTimer() {
+          APP.globalTimerStart = Date.now();
+          const el = document.getElementById('globalTimer');
+          if (el) el.style.display = 'inline-block';
+          APP.globalTimerInterval = setInterval(updateTimerDisplay, 1000);
+          updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+          const el = document.getElementById('globalTimer');
+          if (!el || !APP.globalTimerStart) return;
+          const elapsed = Math.floor((Date.now() - APP.globalTimerStart) / 1000);
+          el.textContent = '⏱️ ' + String(Math.floor(elapsed/60)).padStart(2,'0') + ':' + String(elapsed%60).padStart(2,'0');
+        }
+
+        // ============================================================
+        // TRACKING — Envoi des résultats
+        // ============================================================
+        function sendResult(niveau, points, pointsMax, temps) {
+          if (!APP.email) return;
+          const payload = {
+            email: APP.email,
+            classe: APP.classe,
+            app: TRACKING.appName,
+            niveau: niveau,
+            points: points,
+            pointsMax: pointsMax,
+            temps: temps,
+            totalNiveaux: TRACKING.totalNiveaux,
+            sessionId: TRACKING.sessionId
+          };
+          console.log('[TRACKING] Envoi:', payload);
+          fetch(TRACKING.scriptUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(payload)
+          }).catch(err => console.warn('[TRACKING] Erreur:', err));
+        }
+
+        // ============================================================
+        // TRACKING — Modal Classement
+        // ============================================================
+        let currentLBTab = 'app';
+
+        function openLB(tab) {
+          document.getElementById('lbOverlay').style.display = 'block';
+          switchLBTab(tab || 'app');
+        }
+        function closeLB() {
+          document.getElementById('lbOverlay').style.display = 'none';
+        }
+
+        function switchLBTab(tab) {
+          currentLBTab = tab;
+          const btnApp = document.getElementById('lbTabApp');
+          const btnGlobal = document.getElementById('lbTabGlobal');
+          if (tab === 'app') {
+            btnApp.style.background = 'var(--success)'; btnApp.style.color = '#0f1117';
+            btnGlobal.style.background = 'transparent'; btnGlobal.style.color = 'var(--accent)';
+          } else {
+            btnGlobal.style.background = 'var(--accent)'; btnGlobal.style.color = '#0f1117';
+            btnApp.style.background = 'transparent'; btnApp.style.color = 'var(--success)';
+          }
+          fetchLeaderboard(tab);
+        }
+
+        function fetchLeaderboard(tab) {
+          const content = document.getElementById('lbContent');
+          content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">⏳ Chargement…</div>';
+
+          const action = tab === 'app' ? 'leaderboard_app' : 'leaderboard_global';
+          const cbName = '_lbCb_' + Date.now();
+
+          const timeout = setTimeout(() => {
+            delete window[cbName];
+            const s = document.getElementById(cbName);
+            if (s) s.remove();
+            content.innerHTML = '<div style="text-align:center;padding:40px;"><div style="color:var(--error);margin-bottom:12px;">⚠️ Connexion impossible</div><button onclick="fetchLeaderboard(\'' + tab + '\')" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);cursor:pointer;font-family:inherit;">Réessayer</button></div>';
+          }, 10000);
+
+          window[cbName] = function(resp) {
+            clearTimeout(timeout);
+            delete window[cbName];
+            const s = document.getElementById(cbName);
+            if (s) s.remove();
+            const lbData = resp && (resp.leaderboard || resp.data);
+            if (!lbData || lbData.length === 0) {
+              content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">🏁 Aucun résultat pour le moment</div>';
+              return;
+            }
+            renderLeaderboard(lbData, tab);
+          };
+
+          let url = TRACKING.scriptUrl + '?action=' + action + '&callback=' + cbName + '&mode=last';
+          if (tab === 'app') url += '&app=' + encodeURIComponent(TRACKING.appName);
+          if (APP.classe) url += '&classe=' + encodeURIComponent(APP.classe);
+          const sc = document.createElement('script');
+          sc.id = cbName;
+          sc.src = url;
+          sc.onerror = () => {
+            clearTimeout(timeout);
+            delete window[cbName];
+            sc.remove();
+            content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--error);">⚠️ Erreur de connexion</div>';
+          };
+          document.body.appendChild(sc);
+        }
+
+        function renderLeaderboard(data, tab) {
+          const content = document.getElementById('lbContent');
+          const myEmail = (APP.email || '').toLowerCase();
+
+          // Classement général : tri client par pourcentage (plus équitable)
+          if (tab === 'global' && data.length > 0) {
+            data = data.slice().sort((a, b) => {
+              const pctA = a.pct || 0;
+              const pctB = b.pct || 0;
+              if (pctB !== pctA) return pctB - pctA;
+              return (a.totalTemps || 0) - (b.totalTemps || 0);
+            });
+            data.forEach((entry, i) => { entry.rang = i + 1; });
+          }
+
+          const me = data.find(r => r.email === myEmail);
+          let html = '';
+
+          // Encart personnel (avec fallbacks robustes — Bug critique n°1 du SPEC)
+          if (me) {
+            const pct = me.pct != null ? me.pct : (me.pourcentage != null ? me.pourcentage : 0);
+            const count = tab === 'app'
+              ? (me.niveauxCompletes || me.niveaux || 0)
+              : (me.appsCompletes || me.apps || 0);
+            const total = tab === 'app' ? (me.totalNiveaux || 0) : (me.totalPossibleNiveaux || 0);
+            const label = tab === 'app' ? 'niveaux' : 'apps';
+            const prog = total > 0 ? count + '/' + total + ' ' + label : count + ' ' + label;
+            html += '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px;margin-bottom:16px;display:flex;justify-content:space-around;text-align:center;">' +
+              '<div><div style="font-size:1.3rem;font-weight:800;color:var(--success);">#' + me.rang + '</div><div style="font-size:0.7rem;color:var(--text-muted);">RANG</div></div>' +
+              '<div><div style="font-size:1.3rem;font-weight:800;color:var(--text);">' + me.totalPoints + '</div><div style="font-size:0.7rem;color:var(--text-muted);">POINTS</div></div>' +
+              '<div><div style="font-size:1.3rem;font-weight:800;color:' + (pct>=80?'var(--success)':pct>=50?'var(--accent)':'var(--error)') + ';">' + pct + '%</div><div style="font-size:0.7rem;color:var(--text-muted);">RÉUSSITE</div></div>' +
+              '<div><div style="font-size:1.3rem;font-weight:800;color:var(--text-muted);">' + prog + '</div><div style="font-size:0.7rem;color:var(--text-muted);">PROGRESSION</div></div>' +
+              '</div>';
+          }
+
+          // Tableau
+          const medals = ['🥇','🥈','🥉'];
+          html += '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;color:var(--text);"><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:8px 4px;color:var(--text-muted);font-size:0.72rem;">#</th><th style="text-align:left;padding:8px 4px;color:var(--text-muted);font-size:0.72rem;">Élève</th><th style="text-align:right;padding:8px 4px;color:var(--text-muted);font-size:0.72rem;">Pts</th><th style="text-align:right;padding:8px 4px;color:var(--text-muted);font-size:0.72rem;">%</th><th style="text-align:right;padding:8px 4px;color:var(--text-muted);font-size:0.72rem;">Temps</th></tr>';
+
+          data.forEach(row => {
+            const r = row.rang || 0;
+            const name = row.email.split('@')[0].split(/[._-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            const pct = row.pct != null ? row.pct : (row.pourcentage != null ? row.pourcentage : 0);
+            const temps = row.totalTemps || row.totalTime || 0;
+            const isMe = row.email === myEmail;
+            const pctC = pct >= 80 ? 'var(--success)' : pct >= 50 ? 'var(--accent)' : 'var(--error)';
+            let tStr = '—';
+            if (temps > 0) {
+              const m = Math.floor(temps / 60), sec = temps % 60;
+              tStr = m > 0 ? m + 'm' + String(sec).padStart(2,'0') + 's' : sec + 's';
+            }
+            html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.03);background:' + (isMe ? 'rgba(16,185,129,0.08)' : 'transparent') + ';">' +
+              '<td style="padding:8px 4px;font-weight:700;">' + (r <= 3 ? medals[r-1] : r) + '</td>' +
+              '<td style="padding:8px 4px;' + (isMe ? 'font-weight:800;color:var(--success);' : '') + '">' + name + '</td>' +
+              '<td style="padding:8px 4px;text-align:right;font-weight:700;color:var(--success);">' + row.totalPoints + '</td>' +
+              '<td style="padding:8px 4px;text-align:right;font-weight:700;color:' + pctC + ';">' + pct + '%</td>' +
+              '<td style="padding:8px 4px;text-align:right;color:var(--text-muted);font-family:\'Space Mono\',monospace;font-size:0.78rem;">' + tStr + '</td>' +
+              '</tr>';
+          });
+          html += '</table>';
+          content.innerHTML = html;
+        }
+
+        // ============================================================
+        // TRACKING — Lancement automatique du modal email
+        // ============================================================
+        // À chaque chargement de page : afficher le modal email
+        // (même si email en localStorage, pour permettre à plusieurs élèves d'utiliser le même PC)
+        showEmailModal();
     </script>
 </body>
 </html>
